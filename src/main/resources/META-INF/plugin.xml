@@ -18,7 +18,13 @@
                          groupKey="group.names.code.maturity.issues" groupBundle="messages.InspectionsBundle"
                          enabledByDefault="true" level="ERROR"
                          implementationClass="io.github.ignorelicensescn.removedbysfcninspection.inspections.RemovedBySFCNInspectionBase"/>
-<!--        <toolWindow factoryClass="org.jetbrains.plugins.template.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>-->
+        <localInspection groupPath="Java" language="UAST" suppressId="removedbysfcn_stilllused" shortName="RemovedBySFCNStillUsed"
+                         key="inspection.removedbysfcn.display.name" bundle="messages.MyBundle"
+                         groupKey="group.names.code.maturity.issues" groupBundle="messages.InspectionsBundle"
+                         enabledByDefault="true" level="ERROR"
+                         implementationClass="io.github.ignorelicensescn.removedbysfcninspection.inspections.RemovedStillUsedInspection"/>
+
+        <!--        <toolWindow factoryClass="org.jetbrains.plugins.template.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>-->
     </extensions>
 
     <applicationListeners>
