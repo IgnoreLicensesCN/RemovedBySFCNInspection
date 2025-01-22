@@ -1,0 +1,27 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>io.github.ignorelicensescn.removedbysfcninspection</id>
+    <name>RemovedBySFCNInspection</name>
+    <vendor>IgnoreLicensesCN</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+
+    <resource-bundle>MyBundle.properties</resource-bundle>
+    <resource-bundle>InspectionsBundle.properties</resource-bundle>
+
+
+    <extensions defaultExtensionNs="com.intellij">
+
+        <localInspection groupPath="Java" language="UAST" suppressId="removedbysfcn" shortName="RemovedBySFCN"
+                         key="inspection.removedbysfcn.display.name" bundle="messages.MyBundle"
+                         groupKey="group.names.code.maturity.issues" groupBundle="messages.InspectionsBundle"
+                         enabledByDefault="true" level="ERROR"
+                         implementationClass="io.github.ignorelicensescn.removedbysfcninspection.inspections.RemovedBySFCNInspectionBase"/>
+<!--        <toolWindow factoryClass="org.jetbrains.plugins.template.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>-->
+    </extensions>
+
+    <applicationListeners>
+<!--        <listener class="org.jetbrains.plugins.template.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>-->
+    </applicationListeners>
+</idea-plugin>
