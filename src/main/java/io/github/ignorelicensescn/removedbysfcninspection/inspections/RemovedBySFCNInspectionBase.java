@@ -22,74 +22,32 @@ public class RemovedBySFCNInspectionBase extends LocalInspectionTool {
 
 
     @Override
-    public @NotNull PsiElementVisitor buildVisitor(final @NotNull ProblemsHolder holder,
-                                                   final boolean isOnTheFly,
-                                                   final @NotNull LocalInspectionToolSession session) {
+    public @NotNull PsiElementVisitor buildVisitor(
+            final @NotNull ProblemsHolder holder,
+            final boolean isOnTheFly,
+            final @NotNull LocalInspectionToolSession session) {
         return new JavaElementVisitor() {
-
-            private void visitPsiElementInternal(PsiElement element){
-                visitPsiElementFroAll(element,holder);
-            }
-
-            @Override
-            public void visitMethod(@NotNull PsiMethod method) {
-                visitPsiElementInternal(method);
-                super.visitMethod(method);
-            }
+//            @Override
+//            public void visitMethod(@NotNull PsiMethod method) {
+//                visitPsiElementInternal(method);
+//                super.visitMethod(method);
+//            }
 
             @Override
             public void visitIdentifier(@NotNull PsiIdentifier identifier) {
-                visitPsiElementInternal(identifier);
+                PsiElement parent = identifier.getParent();
+                if (parent instanceof PsiMember member
+                        && parent instanceof PsiNameIdentifierOwner identifierOwner
+                        && identifierOwner.getNameIdentifier() == identifier) {
+                    checkMember(member, identifier, holder);
+                }
+                else if (parent != null && parent.getParent() instanceof PsiJavaModule) {
+                    checkJavaModule((PsiJavaModule)parent.getParent(), holder);
+                }
                 super.visitIdentifier(identifier);
             }
         };
     }
-
-    public static void visitPsiElementFroAll(PsiElement element, ProblemsHolder holder){
-        if (element instanceof PsiJvmModifiersOwner owner){
-            if (owner.hasAnnotation(Consts.RemovedBySFCNClassName)) {
-                holder.registerProblem(owner,
-                        "SFCN Removed member is still used"
-//                        JavaAnalysisBundle.message("deprecated.member.0.is.still.used", name)
-                );
-            }
-        }else if (element instanceof PsiReferenceExpression reference){
-            final PsiElement element1 = reference.resolve();
-            if (element1 instanceof PsiField) {
-                visitPsiElementFroAll(element1,holder);
-            }
-        }
-        else if (element instanceof PsiIdentifier identifier){
-            PsiElement parent = identifier.getParent();
-            if (parent instanceof PsiMember member && parent instanceof PsiNameIdentifierOwner identifierOwner
-                    && identifierOwner.getNameIdentifier() == identifier) {
-                checkMember(member, identifier, holder);
-            }
-            else if (parent != null && parent.getParent() instanceof PsiJavaModule) {
-                checkJavaModule((PsiJavaModule)parent.getParent(), holder);
-            }
-        }
-        else if (element instanceof PsiMethodCallExpression expression){
-            PsiMethod method = expression.resolveMethod();
-            visitPsiElementFroAll(method,holder);
-        }
-        else if (element instanceof PsiJavaCodeReferenceElement reference){
-            if (reference.getParent() instanceof PsiNewExpression) {
-                return;
-            }
-            if (reference.getParent() instanceof PsiAnonymousClass) {
-                return;
-            }
-            if (PsiTreeUtil.getParentOfType(reference, PsiImportStatementBase.class) != null) {
-                return;
-            }
-            final PsiElement elementResolved = reference.resolve();
-            if (element instanceof PsiClass clazz) {
-                visitPsiElementFroAll(clazz,holder);
-            }
-        }
-    }
-
     private static void checkMember(@NotNull PsiMember member, @NotNull PsiIdentifier identifier, @NotNull ProblemsHolder holder) {
         if (!(member instanceof PsiDocCommentOwner)
                 || !Utils.isAnnotatedRemovedBySFCN(member)
@@ -154,7 +112,9 @@ public class RemovedBySFCNInspectionBase extends LocalInspectionTool {
         return ThreeState.fromBoolean(ReferencesSearch.search(element, searchScope, false)
                 .anyMatch(reference -> {
                     PsiElement referenceElement = reference.getElement();
-                    return PsiTreeUtil.getParentOfType(referenceElement, PsiImportStatementBase.class) == null &&
+                    return PsiTreeUtil.getParentOfType(
+                            referenceElement, PsiImportStatementBase.class) == null
+                            &&
                             !isElementInsideRemoved(referenceElement)
                             &&
                             !PsiUtil.isInsideJavadocComment(referenceElement);

@@ -92,21 +92,23 @@ public class RemovedApiUsageProcessor implements ApiUsageProcessor {
     @Override
     public void processMethodOverriding(@NotNull UMethod method, @NotNull PsiMethod overriddenMethod) {
         PsiClass aClass = overriddenMethod.getContainingClass();
+
         if (aClass == null) return;
 
         PsiElement methodNameElement = UElementKt.getSourcePsiElement(method.getUastAnchor());
         if (methodNameElement == null) return;
 
         //Do not show Removed warning for class implementing Removed methods
-        if (myIgnoreAbstractRemovedOverrides 
-//                && !aClass.isRemoved() 
+
+        if (myIgnoreAbstractRemovedOverrides
+                && !aClass.hasAnnotation(Consts.RemovedBySFCNClassName)
                 && overriddenMethod.hasModifierProperty(PsiModifier.ABSTRACT)) {
             return;
         }
 
         if (
-//                overriddenMethod.isRemoved() 
-//                && 
+                overriddenMethod.hasAnnotation(Consts.RemovedBySFCNClassName)
+                &&
                         myForRemoval == findRemovedBySFCNByAnnotation(overriddenMethod)) {
             String description = getPresentableName(aClass) + " is removed by sfcn";
 //                    JavaErrorBundle.message(myForRemoval ? "overrides.marked.for.removal.method" : "overrides.Removed.method",

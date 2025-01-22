@@ -112,9 +112,9 @@ public class RemovedInspectionBase extends LocalInspectionTool {
     }
 
     public static boolean isRemovedPsi(@NotNull PsiElement psiElement) {
-//        if (psiElement instanceof PsiDocCommentOwner) {
-//            return ((PsiDocCommentOwner)psiElement).isRemoved();
-//        }
+        if (psiElement instanceof PsiDocCommentOwner) {
+            return ((PsiDocCommentOwner)psiElement).hasAnnotation(Consts.RemovedBySFCNClassName);
+        }
         if (psiElement instanceof PsiModifierListOwner && findRemovedBySFCNByAnnotation((PsiModifierListOwner) psiElement)) {
             return true;
         }
@@ -237,7 +237,7 @@ public class RemovedInspectionBase extends LocalInspectionTool {
                 .map(reference -> reference.resolve())
                 .select(clazz)
                 .distinct()
-//                .filter(tagMethod -> !tagMethod.isRemoved()) // not Removed
+                .filter(tagMethod -> !tagMethod.hasAnnotation(Consts.RemovedBySFCNClassName)) // not Removed
                 .filter(tagMethod -> PsiResolveHelper.getInstance(context.getProject()).isAccessible(tagMethod, context, qualifierClass)) // accessible
                 .filter(tagMethod -> !member.getManager().areElementsEquivalent(tagMethod, member)); // not the same
     }
